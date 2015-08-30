@@ -20,22 +20,33 @@
          (= s 12)))))
 
 (defn counter-leaps [col]
-  (or (< (count col) 2)
+  (or (< (count col) 3)
       (let [p (pen col), u (ult col), ap (apen col)]
         (or
-         (< (abs (- p u) 7))
+         (< (Math/abs (- p u)) 7)
          (and (> u p) (< p ap))
          (and (< u p) (> p ap))))))
 
 
-
 (defn valid-melody? [mel]
-  ((every-pred melodic-leaps counter-leaps) mel) )
+  ((every-pred melodic-leaps counter-leaps) mel))
 
-(defn generate-first-species [col]
-  (loop [cf (map note col), cp [(+ (first cf) (first consants))], intervals (map - cp cf)]
+
+(defn valid-harmony? [cf cp]
+  true)
+
+(defn valid-counterpart [cf cp]
+  (and (get-common-scales cp cf) (valid-melody? cp) (valid-harmony? cp cf)))
+
+(defn generate-first-species [cf]
+  (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)]]
     (cond
-      (= (count cf) (count cp)) (map find-note-name cp)
-      (and (find-scales (min (first cp) (first cf)) (concat cp cf)) (valid-melody? cp))
-      )
-    ))
+      (false? (valid-counterpart cf cp)) (let [next-intervals (get-next-intervals intervals)]
+                                           (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
+      (= (count cf) (count cp)) cp
+      :else (let [next-intervals (conj intervals (first consonants))]
+              (println next-intervals)
+              (recur (map #(+ %1 %2) cf next-intervals) next-intervals)))))
+
+(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])]
+  (map find-note-name (generate-first-species cf)))

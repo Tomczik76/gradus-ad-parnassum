@@ -17,9 +17,9 @@
 
 (defn apen [col]
   (nth-last col 3))
-((fn [c](println c)) [])
 
-(defn next-intervals [col]
+
+(defn get-next-intervals [col]
   (cond
     (= col [-12]) (throw (Exception. "No more possible intervals"))
     (not= (ult col) (last consonants)) (conj  (vec (drop-last col))
@@ -32,13 +32,22 @@
     (some #(= (find-pitch-class-name note) %) pitchClasses)))
 
 
-(defn find-scales [tonics melody scales]
-  (filter (fn [s] (some (fn [t] (every? (fn [n] (is-note-in-scale t (scales s) n)) melody)) tonics)) (keys scales)))
+(defn find-scales [tonic scales melody]
+  (filter (fn [s]
+            (every? (fn [n]
+                      (is-note-in-scale tonic (scales s) n))
+                    melody))
+          (keys scales)))
 
-(find-scales [(note :C4)] (map note [:C4 :D4 :E4 :F4 :G4]) modes)
+(find-scales (note :C4) modes (map note [:C4 :D4 :E4 :F4 :G4]))
+
+(defn find-tonic [& args]
+  (apply min (map first args)))
+
 
 (defn get-common-scales [& args]
-  (apply clojure.set/intersection (map (comp set find-scales) args)))
-(get-common-scales (map note [:C4 :D4 :E4 :F4 :G4]) (map note [:C4 :D4 :E4 :F4 :G4]) scales)
+  (apply clojure.set/intersection (map (comp set (partial find-scales (apply find-tonic args) modes)) args)))
 
-;┌∩┐(◣_◢)┌∩┐
+(get-common-scales (map note [:C4 :D4 :F4 :G4]) (map note [:D4  :F4 :G4]))
+
+                                        ;┌∩┐(◣_◢)┌∩┐
