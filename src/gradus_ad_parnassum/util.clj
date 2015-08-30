@@ -45,7 +45,6 @@
                     melody))
           (keys scales)))
 
-(find-scales (note :C4) modes (map note [:C4 :D4 :E4 :F4 :G4]))
 
 (defn find-tonic [& args]
   (apply min (map first args)))
@@ -53,7 +52,3 @@
 
 (defn get-common-scales [& args]
   (apply clojure.set/intersection (map (comp set (partial find-scales (apply find-tonic args) modes)) args)))
-
-(get-common-scales (map note [:C4 :D4 :F4 :G4]) (map note [:D4  :F4 :G4]))
-
-                                        ;┌∩┐(◣_◢)┌∩┐
