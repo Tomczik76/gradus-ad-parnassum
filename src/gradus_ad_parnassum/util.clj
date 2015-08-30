@@ -18,6 +18,12 @@
 (defn apen [col]
   (nth-last col 3))
 
+(defn get-melodic-direction [mel]
+  (cond
+    (= (ult mel) (pen mel)) :static
+    (> (ult mel) (pen mel)) :up
+    :else :down))
+
 
 (defn get-next-intervals [col]
   (cond

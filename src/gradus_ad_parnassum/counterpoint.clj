@@ -23,7 +23,7 @@
   (or (< (count col) 3)
       (let [p (pen col), u (ult col), ap (apen col)]
         (or
-         (< (Math/abs (- p u)) 7)
+         (< (Math/abs (- p u)) fifth)
          (and (> u p) (< p ap))
          (and (< u p) (> p ap))))))
 
@@ -32,17 +32,17 @@
   ((every-pred melodic-leaps counter-leaps) mel))
 
 
-(defn valid-harmony? [cf cp]
-  true)
+(defn valid-harmony? [cf cp intervals]
+  (and ((every-pred first-is-perfect) intervals)))
 
-(defn valid-counterpart [cf cp]
-  (and (get-common-scales cp cf) (valid-melody? cp) (valid-harmony? cp cf)))
+(defn valid-counterpart [cf cp intervals]
+  (and (get-common-scales cp cf) (valid-melody? cp) (valid-harmony? cp cf intervals)))
 
 (defn generate-first-species [cf]
   (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)]]
     (cond
-      (false? (valid-counterpart cf cp)) (let [next-intervals (get-next-intervals intervals)]
-                                           (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
+      (false? (valid-counterpart cf cp intervals)) (let [next-intervals (get-next-intervals intervals)]
+                                                     (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
       (= (count cf) (count cp)) cp
       :else (let [next-intervals (conj intervals (first consonants))]
               (println next-intervals)
