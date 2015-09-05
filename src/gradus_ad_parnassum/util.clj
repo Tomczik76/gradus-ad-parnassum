@@ -1,10 +1,33 @@
 (ns gradus-ad-parnassum.util
-  (:use gradus-ad-parnassum.scales)
-  (:use overtone.live))
+  (:use gradus-ad-parnassum.scales))
 
 (def perfect-consonant [12 7 0 -7 -12])
 (def imperfect-consonant [9 8 4 3 -3 -4 -8 -9])
 (def consonants [12 9 8 7 4 3 0 -3 -4 -7 -8 -9 -12])
+
+(def base-notes [:C :C# :D :Eb :E :F :F# :G :Ab :A :Bb :B])
+(def unison 0)
+(def minor-third 3)
+(def third 4)
+(def forth 5)
+(def fifth 7)
+(def minor-sixth 8)
+(def sixth 9)
+(def octave 12)
+
+(defn decending [n] (* -1 n))
+
+(defn get-note-class
+  [note]
+  (base-notes (mod note 12)))
+
+
+(defn note [n]
+  (if (keyword? n)
+    (note (name n))
+    (+ (.indexOf base-notes (keyword (first (re-seq #"[A-Z]b?#?+" n))))
+       (* 12 (read-string (first (re-seq #"-?[0-9]+" n)))) 12)))
+
 
 (defn nth-last [col x]
   (if (> x (count col)) nil (nth col (- (count col) x))))
@@ -34,8 +57,8 @@
 
 
 (defn is-note-in-scale [tonic scale note]
-  (let [pitchClasses (map #(find-pitch-class-name (+ tonic %)) scale)]
-    (some #(= (find-pitch-class-name note) %) pitchClasses)))
+  (let [pitchClasses (map #(get-note-class (+ tonic %)) scale)]
+    (some #(= (get-note-class note) %) pitchClasses)))
 
 
 (defn find-scales [tonic scales melody]

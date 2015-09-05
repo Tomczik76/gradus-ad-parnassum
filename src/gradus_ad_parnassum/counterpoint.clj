@@ -1,5 +1,4 @@
 (ns gradus-ad-parnassum.counterpoint
-  (:use overtone.live)
   (:use gradus-ad-parnassum.util)
   (:use gradus-ad-parnassum.scales))
 
@@ -12,12 +11,13 @@
 ;; Melodic Error Checks
 
 
-(defn melodic-leaps [col]
-  (or (= 1 (count  col))
-      (let [s (- (pen col) (ult col))]
+(defn melodic-leaps [mel]
+  (or (= 1 (count mel))
+      (let [s (- (ult mel) (pen mel))]
         (or
-         (< s 9)
-         (= s 12)))))
+         (< (decending minor-sixth) s sixth)
+         (= s octave)
+         (= s (decending octave))))))
 
 (defn counter-leaps [col]
   (or (< (count col) 3)
@@ -41,12 +41,12 @@
 (defn generate-first-species [cf]
   (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)]]
     (cond
-      (false? (valid-counterpart cf cp intervals)) (let [next-intervals (get-next-intervals intervals)]
-                                                     (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
+      (not (valid-counterpart cf cp intervals)) (let [next-intervals (get-next-intervals intervals)]
+                                                  (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
       (= (count cf) (count cp)) cp
       :else (let [next-intervals (conj intervals (first consonants))]
               (println next-intervals)
               (recur (map #(+ %1 %2) cf next-intervals) next-intervals)))))
 
-(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])]
-  (map find-note-name (generate-first-species cf)))
+
+;(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (map find-note-name (generate-first-species cf)))

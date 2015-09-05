@@ -1,8 +1,7 @@
 (ns gradus-ad-parnassum.util-spec
   (:require [speclj.core :refer :all]
             [gradus-ad-parnassum.util :refer :all]
-            [gradus-ad-parnassum.scales :refer :all]
-            [overtone.live :refer :all]))
+            [gradus-ad-parnassum.scales :refer :all]))
 
 (def cf (vec (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])))
 
