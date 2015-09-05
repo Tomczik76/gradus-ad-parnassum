@@ -1,4 +1,4 @@
-# Gradus Ad Parnassum
+# Gradus ad Parnassum
 
 A Clojure library designed to generate 16th century counterpoint
 
