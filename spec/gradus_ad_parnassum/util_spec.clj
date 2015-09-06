@@ -24,6 +24,21 @@
                (should (= :down (get-melodic-direction [44 42]))))
            (it "is correct for :static"
                (should (= :static (get-melodic-direction [44 44])))))
+ (describe "get-melodic-interval"
+           (it "returns fifth"
+               (should (= fifth (get-melodic-interval [(note :C4) (note :G4)]))))
+           (it "returns decending minor sixth"
+               (should (= (decending minor-sixth) (get-melodic-interval [(note :C4) (note :E3)])))))
+ (describe "get-motion"
+           (it "returns parallel"
+               (should (= :parallel (get-motion [(note :C4) (note :D4)] [(note :G4) (note :A4)]))))
+           (it "returns static"
+               (should (= :static (get-motion [(note :C4) (note :C4)] [(note :G4) (note :G4)]))))
+           (it "returns similar"
+               (should (= :similar (get-motion [(note :C4) (note :D4)] [(note :E4) (note :G4)]))))
+           (it "returns oblique"
+               (should (= :oblique (get-motion [(note :C4) (note :E4)] [(note :G4) (note :G4)]))))
+           )
  (describe "get-next-intervals"
            (it "return next interval for list of one"
                (should (= 9 (last (get-next-intervals [12])))))

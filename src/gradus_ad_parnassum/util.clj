@@ -10,10 +10,12 @@
 (def minor-third 3)
 (def third 4)
 (def forth 5)
+(def tritone 6)
 (def fifth 7)
 (def minor-sixth 8)
 (def sixth 9)
 (def octave 12)
+(def tenth 16)
 
 (defn decending [n] (* -1 n))
 
@@ -47,6 +49,17 @@
     (> (ult mel) (pen mel)) :up
     :else :down))
 
+(defn get-melodic-interval [mel]
+  (- (ult mel) (pen mel)))
+
+(defn get-motion [mel1 mel2]
+  (let [m1 (get-melodic-direction mel1) m2 (get-melodic-direction mel2)]
+    (cond
+      (and (= m1 :static) (= m2 :static)) :static
+      (and (= m1 m2) (= (get-melodic-interval mel1) (get-melodic-interval mel2))) :parallel
+      (= m1 m2) :similar
+      (or (= m1 :static) (= m2 :static)) :oblique
+      :else :contrary)))
 
 (defn get-next-intervals [col]
   (cond

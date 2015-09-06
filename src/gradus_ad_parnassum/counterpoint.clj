@@ -5,35 +5,48 @@
 
 
 ;; Harmonic Error Checks
-(defn first-is-perfect [col]
-  (some #(= (first col) %) perfect-consonant))
+(defn first-is-perfect [intervals]
+  (some #(= (first intervals) %) perfect-consonant))
+
+(defn not-parallel-perfects [intervals]
+  (or (= 1 (count intervals))
+      (not (some #{(last intervals)} perfect-consonant))
+      (not= (last intervals) (nth-last intervals 2))))
 
 ;; Melodic Error Checks
-
-
 (defn melodic-leaps [mel]
   (or (= 1 (count mel))
-      (let [s (- (ult mel) (pen mel))]
+      (let [i (get-melodic-interval mel)]
         (or
-         (< (decending minor-sixth) s sixth)
-         (= s octave)
-         (= s (decending octave))))))
+         (< (decending minor-sixth) i sixth)
+         (= i octave)
+         (= i (decending octave))))))
 
-(defn counter-leaps [col]
-  (or (< (count col) 3)
-      (let [p (pen col), u (ult col), ap (apen col)]
+(defn counter-leaps [mel]
+  (or (< (count mel) 3)
+      (let [ u (ult mel) p (pen mel), ap (apen mel)]
         (or
-         (< (Math/abs (- p u)) fifth)
-         (and (> u p) (< p ap))
-         (and (< u p) (> p ap))))))
+         (< (decending minor-sixth) (- p ap) minor-sixth)
+         (let [dir (get-melodic-direction mel) prevDir (get-melodic-direction (drop-last mel))]
+           (or (and (= prevDir :down) (= dir :up))
+               (and (= prevDir :up) (= dir :down) (< (- p u) 3))))))))
+
+(defn singable-range [mel]
+  (< (- (apply max mel) (apply min mel)) tenth))
+
+
+(defn tritone-leap [mel]
+  (or (= 1 (count mel))
+      (let [s (- (ult mel) (pen mel))]
+        (and (not= s tritone) (not= s (decending tritone))))))
 
 
 (defn valid-melody? [mel]
-  ((every-pred melodic-leaps counter-leaps) mel))
+  ((every-pred melodic-leaps counter-leaps singable-range tritone-leap) mel))
 
 
 (defn valid-harmony? [cf cp intervals]
-  (and ((every-pred first-is-perfect) intervals)))
+  (and ((every-pred first-is-perfect not-parallel-perfects) intervals)))
 
 (defn valid-counterpart [cf cp intervals]
   (and (get-common-scales cp cf) (valid-melody? cp) (valid-harmony? cp cf intervals)))
@@ -49,4 +62,4 @@
               (recur (map #(+ %1 %2) cf next-intervals) next-intervals)))))
 
 
-;(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (map find-note-name (generate-first-species cf)))
+(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (generate-first-species cf))
