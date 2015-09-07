@@ -2,8 +2,8 @@
   (:use gradus-ad-parnassum.scales))
 
 (def perfect-consonant [12 7 0 -7 -12])
-(def imperfect-consonant [9 8 4 3 -3 -4 -8 -9])
-(def consonants [12 9 8 7 4 3 0 -3 -4 -7 -8 -9 -12])
+(def imperfect-consonant [9 8 5 4 3 -3 -4 -5 -8 -9])
+(def consonants [12 9 8 7 5 4 3 0 -3 -4 -5 -7 -8 -9 -12])
 
 (def base-notes [:C :C# :D :Eb :E :F :F# :G :Ab :A :Bb :B])
 (def unison 0)
