@@ -2,16 +2,19 @@
   (:use gradus-ad-parnassum.util)
   (:use gradus-ad-parnassum.scales))
 
-
-
 ;; Harmonic Error Checks
 (defn first-is-perfect [intervals]
-  (some #(= (first intervals) %) perfect-consonant))
+  (some #(= (first intervals) %) (remove #{(decending fifth)} perfect-consonant)))
 
-(defn not-parallel-perfects [intervals]
+(defn last-is-perfect [cf cp intervals]
+  (or (not= (count cf) (count cp))
+      (some #(= (last intervals) %) (remove #{(decending fifth) fifth} perfect-consonant))) )
+
+(defn perfects-motion [cf cp intervals]
   (or (= 1 (count intervals))
       (not (some #{(last intervals)} perfect-consonant))
-      (not= (last intervals) (nth-last intervals 2))))
+      (let [m (get-motion cf cp)]
+        (and (not= m :parallel) (not= m :similar)))))
 
 ;; Melodic Error Checks
 (defn melodic-leaps [mel]
@@ -40,26 +43,37 @@
       (let [s (- (ult mel) (pen mel))]
         (and (not= s tritone) (not= s (decending tritone))))))
 
+(defn trim-penultimate-counterpoint [cf cp]
+  (if (> (count cp) (- (count cf) 2))
+    (subvec (vec cp) 0 (- (count cf) 2))
+    cp))
 
 (defn valid-melody? [mel]
-  ((every-pred melodic-leaps counter-leaps singable-range tritone-leap) mel))
-
+  ((every-pred
+    melodic-leaps
+    counter-leaps
+    singable-range
+    tritone-leap) mel))
 
 (defn valid-harmony? [cf cp intervals]
-  (and ((every-pred first-is-perfect not-parallel-perfects) intervals)))
+  (and (first-is-perfect intervals)
+       (last-is-perfect cf cp intervals)
+       (perfects-motion cf cp intervals)))
 
 (defn valid-counterpart [cf cp intervals]
-  (and (get-common-scales cp cf) (valid-melody? cp) (valid-harmony? cp cf intervals)))
+  (and (not-empty (get-common-scales (first cf) cf (trim-penultimate-counterpoint cf cp)))
+       (valid-melody? cp)
+       (valid-harmony? cp cf intervals)))
 
 (defn generate-first-species [cf]
-  (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)]]
-    (cond
-      (not (valid-counterpart cf cp intervals)) (let [next-intervals (get-next-intervals intervals)]
-                                                  (recur (map #(+ %1 %2) cf next-intervals) next-intervals))
-      (= (count cf) (count cp)) cp
-      :else (let [next-intervals (conj intervals (first consonants))]
-              (println next-intervals)
-              (recur (map #(+ %1 %2) cf next-intervals) next-intervals)))))
+  (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)], results []]
+    (let [next-intervals (get-next-intervals intervals)]
+      (println intervals)
+      (cond
+        (empty? next-intervals) results
+        (not (valid-counterpart cf cp intervals)) (recur (get-counterpoint cf next-intervals) next-intervals results)
+        (= (count cf) (count cp)) (recur (get-counterpoint cf next-intervals)  next-intervals (conj results cp))
+        :else (let [new-intervals (conj intervals (first consonants))]
+                (recur (get-counterpoint cf new-intervals) new-intervals results))))))
 
-
-(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (map #(- %1 %2) (generate-first-species cf) cf))
+(let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (generate-first-species cf))

@@ -8,8 +8,9 @@
 
  (describe "first-is-perfect"
            (it "returns true if first is fifth"
-               (should (first-is-perfect [7 8]))
-               (should (first-is-perfect [-7 8])))
+               (should (first-is-perfect [7 8])))
+           (it "returns falsey if first is lower fifth"
+               (should-not(first-is-perfect [-7 8])))
            (it "returns true if first is octave"
                (should (first-is-perfect [12 8]))
                (should (first-is-perfect [-12 8])))
@@ -20,11 +21,11 @@
                (should-not (first-is-perfect [8 7]))))
  (describe "not-parallel-perfects"
            (it "returns true if last interval is third"
-               (should (not-parallel-perfects [third third])))
+               (should (perfects-motion [(note :C4) (note :D4)] [(note :E4) (note :F#4)] [third third])))
            (it "returns falsey for parallel fifths"
-               (should-not (not-parallel-perfects  [fifth fifth])))
+               (should-not (perfects-motion [(note :C4) (note :D4)] [(note :G4) (note :A4)]  [fifth fifth])))
            (it "returns falsey for parallel octaves"
-               (should-not (not-parallel-perfects [octave octave]))))
+               (should-not (perfects-motion [(note :C4) (note :D4)] [(note :C5) (note :D5)] [octave octave]))))
 
  (describe "melodic-leaps"
            (it "returns falsey leap of an acending sixth"

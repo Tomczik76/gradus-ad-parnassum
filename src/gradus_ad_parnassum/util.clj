@@ -2,8 +2,8 @@
   (:use gradus-ad-parnassum.scales))
 
 (def perfect-consonant [12 7 0 -7 -12])
-(def imperfect-consonant [9 8 5 4 3 -3 -4 -5 -8 -9])
-(def consonants [12 9 8 7 5 4 3 0 -3 -4 -5 -7 -8 -9 -12])
+(def imperfect-consonant [9 8 4 3 -3 -4 -5 -8 -9])
+(def consonants [12 9 8 7 4 3 0 -3 -4 -5 -7 -8 -9 -12])
 
 (def base-notes [:C :C# :D :Eb :E :F :F# :G :Ab :A :Bb :B])
 (def unison 0)
@@ -19,8 +19,7 @@
 
 (defn decending [n] (* -1 n))
 
-(defn get-note-class
-  [note]
+(defn get-note-class [note]
   (base-notes (mod note 12)))
 
 
@@ -43,17 +42,19 @@
 (defn apen [col]
   (nth-last col 3))
 
-(defn get-melodic-direction [mel]
-  (cond
-    (= (ult mel) (pen mel)) :static
-    (> (ult mel) (pen mel)) :up
-    :else :down))
+(defn get-melodic-direction
+  ([mel] (get-melodic-direction mel (dec (count mel))))
+  ([mel n] (let [u (nth mel n) p (nth mel (dec n))]
+             (cond
+               (= u p) :static
+               (> u p) :up
+               :else :down))))
 
 (defn get-melodic-interval [mel]
   (- (ult mel) (pen mel)))
 
 (defn get-motion [mel1 mel2]
-  (let [m1 (get-melodic-direction mel1) m2 (get-melodic-direction mel2)]
+  (let [n (dec (min (count mel1) (count mel2))) m1 (get-melodic-direction mel1 n) m2 (get-melodic-direction mel2 n)]
     (cond
       (and (= m1 :static) (= m2 :static)) :static
       (and (= m1 m2) (= (get-melodic-interval mel1) (get-melodic-interval mel2))) :parallel
@@ -63,7 +64,7 @@
 
 (defn get-next-intervals [col]
   (cond
-    (= col [-12]) (throw (Exception. "No more possible intervals"))
+    (= col [-12]) ([])
     (not= (ult col) (last consonants)) (conj  (vec (drop-last col))
                                               (nth consonants (inc (.indexOf consonants (last col)))))
     :else (recur (drop-last col))))
@@ -85,6 +86,8 @@
 (defn find-tonic [& args]
   (apply min (map first args)))
 
+(defn get-counterpoint [cf intervals]
+  (map #(+ %1 %2) cf intervals))
 
-(defn get-common-scales [& args]
-  (apply clojure.set/intersection (map (comp set (partial find-scales (apply find-tonic args) modes)) args)))
+(defn get-common-scales [tonic & args]
+  (apply clojure.set/intersection (map (comp set (partial find-scales tonic modes)) args)))

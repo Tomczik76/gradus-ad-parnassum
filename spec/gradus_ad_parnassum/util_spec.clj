@@ -68,7 +68,7 @@
  (describe "get-common-scales"
            (it "return #{:dorian :aeolian} correctly"
                (should (= #{:dorian :aeolian}
-                          (get-common-scales (map note [:C4 :D4 :F4 :G4]) (map note [:D4 :Eb4 :F4 :G4]))))))
+                          (get-common-scales (note :C4) (map note [:C4 :D4 :F4 :G4]) (map note [:D4 :Eb4 :F4 :G4]))))))
  )
 
 (run-specs)
