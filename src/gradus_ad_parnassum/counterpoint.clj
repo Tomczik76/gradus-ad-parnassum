@@ -65,15 +65,19 @@
        (valid-melody? cp)
        (valid-harmony? cp cf intervals)))
 
-(defn generate-first-species [cf]
-  (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)], results []]
-    (let [next-intervals (get-next-intervals intervals)]
-      (println intervals)
-      (cond
-        (empty? next-intervals) results
-        (not (valid-counterpart cf cp intervals)) (recur (get-counterpoint cf next-intervals) next-intervals results)
-        (= (count cf) (count cp)) (recur (get-counterpoint cf next-intervals)  next-intervals (conj results cp))
-        :else (let [new-intervals (conj intervals (first consonants))]
-                (recur (get-counterpoint cf new-intervals) new-intervals results))))))
+(defn generate-first-species
+  ([cf] (generate-first-species cf true))
+  ([cf return-first]
+   (loop [cp [(+ (first cf) (first consonants))], intervals [(first consonants)], results []]
+     (let [next-intervals (get-next-intervals intervals)]
+       (println intervals)
+       (cond
+         (empty? next-intervals) results
+         (not (valid-counterpart cf cp intervals)) (recur (get-counterpoint cf next-intervals) next-intervals results)
+         (= (count cf) (count cp)) (if return-first
+                                     cp
+                                     (recur (get-counterpoint cf next-intervals)  next-intervals (conj results cp)))
+         :else (let [new-intervals (conj intervals (first consonants))]
+                 (recur (get-counterpoint cf new-intervals) new-intervals results)))))))
 
 (let [cf (map note [:D4 :F4 :E4 :D4 :G4 :F4 :A4 :G4 :F4 :E4 :D4])] (generate-first-species cf))
