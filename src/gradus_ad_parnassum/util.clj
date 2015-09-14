@@ -9,7 +9,7 @@
 (def unison 0)
 (def minor-third 3)
 (def third 4)
-(def forth 5)
+(def fourth 5)
 (def tritone 6)
 (def fifth 7)
 (def minor-sixth 8)
@@ -22,12 +22,15 @@
 (defn get-note-class [note]
   (base-notes (mod note 12)))
 
-
 (defn note [n]
   (if (keyword? n)
     (note (name n))
     (+ (.indexOf base-notes (keyword (first (re-seq #"[A-Z]b?#?+" n))))
        (* 12 (read-string (first (re-seq #"-?[0-9]+" n)))) 12)))
+
+(defn note-value [n]
+  (keyword (str (name (base-notes (mod n 12))) (- (/ (- n (mod n 12)) 12) 1))))
+
 
 
 (defn nth-last [col x]
@@ -41,6 +44,9 @@
 
 (defn apen [col]
   (nth-last col 3))
+
+(defn stepwise? [mel]
+  (< -3 (- (pen mel) (ult mel)) 3))
 
 (defn get-melodic-direction
   ([mel] (get-melodic-direction mel (dec (count mel))))
@@ -91,3 +97,11 @@
 
 (defn get-common-scales [tonic & args]
   (apply clojure.set/intersection (map (comp set (partial find-scales tonic modes)) args)))
+
+(defn third? [interval]
+  (#{(decending third) (decending minor-third) minor-third third} interval))
+
+(defn sixth? [interval]
+  (#{(decending sixth) (decending minor-sixth) minor-sixth sixth} interval))
+
+(def golden-ratio (/ (+ 1 (Math/sqrt 5)) 2))

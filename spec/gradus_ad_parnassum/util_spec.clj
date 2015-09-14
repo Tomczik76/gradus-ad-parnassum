@@ -17,6 +17,16 @@
  (describe "apen"
            (it "returns antepenultimate note"
                (should (= (apen cf) (note :F4)))))
+ (describe "stepwise?"
+           (it "returns true is stepwise up"
+               (should (stepwise? [(note :C4) (note :G4) (note :A4)])))
+           (it "returns true is stepwise down"
+               (should (stepwise? [(note :C4) (note :G4) (note :F4)])))
+           (it "returns false is leap up"
+               (should-not (stepwise? [(note :C4) (note :D4) (note :F4)])))
+           (it "returns false is leap down"
+               (should-not (stepwise? [(note :C4) (note :G4) (note :E4)]))))
+
  (describe "melodic-direction"
            (it "is correct for :up"
                (should (= :up (get-melodic-direction [42 44]))))
